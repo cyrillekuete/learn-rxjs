@@ -1,12 +1,33 @@
 import React from "react";
-import ReactDom from "react-dom";
+import ReactDOM from "react-dom";
+import SeasonDisplay from "./SeasonDisplay";
 
-const App = () => {
-  return (
-    <div>
-      <p>Hello World</p>
-    </div>
-  );
-};
-ReactDom.render(<App />, document.querySelector("#root"));
-// export default App;
+class App extends React.Component {
+  state = { lat: null, errorMessage: "" };
+  componentDidMount() {
+    window.navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.setState({
+          lat: position.coords.latitude,
+        });
+      },
+      (error) => {
+        this.setState({ errorMessage: error.message });
+      }
+    );
+  }
+  componentDidUpdate() {
+    console.log("Component was Updated Successfully");
+  }
+  render() {
+    if (this.state.errorMessage && !this.state.lat) {
+      return <div>Error: {this.state.errorMessage}</div>;
+    }
+    if (!this.state.errorMessage && this.state.lat) {
+      return <SeasonDisplay lat={this.state.lat} />;
+    }
+    return <div>Loading...</div>;
+  }
+}
+
+ReactDOM.render(<App />, document.querySelector("#root"));
